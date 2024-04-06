@@ -2,7 +2,6 @@
 
 namespace App\Tests;
 
-use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class HistoricalDataTest extends KernelTestCase
@@ -13,6 +12,7 @@ class HistoricalDataTest extends KernelTestCase
     {
         $this->url =  '/api/historical-data/';
         $this->client = new \GuzzleHttp\Client(['base_uri' => 'http://nginx',  'http_errors' => false]);
+        self::bootKernel();
     }
 
     public function testEmptyRequest()
@@ -66,11 +66,6 @@ class HistoricalDataTest extends KernelTestCase
 
     public function testValidRequest()
     {
-        self::bootKernel();
-        $container = static::getContainer();
-        $csv_directory = $container->getParameter('csv_directory');
-        $filename = $csv_directory . sha1(time()) . '.csv';
-
         $response =  $this->client->request(
             'POST',
             $this->url,
@@ -79,7 +74,7 @@ class HistoricalDataTest extends KernelTestCase
                     'company_symbol' => 'GOOGL',
                     'email_address' => 'test@example.com',
                     'start_date' => '2023-08-01',
-                    'end_date' =>"2024-04-06"
+                    'end_date' => "2024-04-06"
                 ]
             ]
         );
@@ -91,17 +86,43 @@ class HistoricalDataTest extends KernelTestCase
 
         $responseArray = json_decode($responseContent, true);
         $this->assertEquals('true', $responseArray['success']);
+    }
+
+    /* public function testFileExists()
+    {
+        self::bootKernel();
+
+        $container = static::getContainer();
+
+        $csv_directory = $container->getParameter('csv_directory');
+        $filename = $csv_directory . sha1(time()) . '.csv';
+
+        $response =  $this->client->request(
+            'POST',
+            $this->url,
+            [
+                'json' => [
+                    'company_symbol' => 'GOOGL',
+                    'email_address' => 'test@example.com',
+                    'start_date' => '2023-08-01',
+                    'end_date' => "2024-04-06"
+                ]
+            ]
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
         $this->assertFileExists($filename);
 
-       /*  $fileContent = file($filename);
+         $fileContent = file($filename);
 
         if (count($fileContent) > 1) {
             $firstRow = explode(',', $fileContent[1]);
             $lastRow =  explode(',', $fileContent[count($fileContent) - 1]);
             $this->assertGreaterThanOrEqual(date('Y-m-d', strtotime('-1 month')), $firstRow[0]);
             $this->assertLessThanOrEqual(date('Y-m-d'), $lastRow[0]);
-        } */
-    }
+        } 
+    } */
 
     public function testInvalidRequestFormat()
     {

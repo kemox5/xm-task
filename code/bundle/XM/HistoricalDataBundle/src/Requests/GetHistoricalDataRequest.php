@@ -61,15 +61,17 @@ class GetHistoricalDataRequest extends BaseRequest
 
     public function validateDates()
     {
-        $emailConstraint = new Assert\GreaterThan($this->start_date);
-        $errors = $this->validator->validate($this->end_date, $emailConstraint);
-        foreach ($errors as $message) {
-            $this->errors[] = [
-                'property' => 'end_date',
-                'value' => $message->getInvalidValue(),
-                'message' => $message->getMessage(),
-            ];
+        if (isset($this->start_date)) {
+            $emailConstraint = new Assert\GreaterThan($this->start_date);
+            $errors = $this->validator->validate($this->end_date, $emailConstraint);
+            foreach ($errors as $message) {
+                $this->errors[] = [
+                    'property' => 'end_date',
+                    'value' => $message->getInvalidValue(),
+                    'message' => $message->getMessage(),
+                ];
+            }
+            $this->throwError($this->errors);
         }
-        $this->throwError($this->errors);
     }
 }

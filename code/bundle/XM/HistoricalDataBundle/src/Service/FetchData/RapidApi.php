@@ -23,13 +23,13 @@ class RapidApi implements FetchData
     {
         $RapidAPIKey = $this->parameters->get('RapidAPIKey');
 
-        $prices = $this->cachePool->get($symbol, function (CacheItemInterface $cacheItemInterface) use ($RapidAPIKey) {
+        return $this->cachePool->get($symbol, function (CacheItemInterface $cacheItemInterface) use ($RapidAPIKey, $symbol) {
 
             $cacheItemInterface->expiresAt(new DateTimeImmutable(date('Y-m-d') . ' 23:59:59'));
 
             $response = $this->client->request(
                 'GET',
-                'https://yh-finance.p.rapidapi.com/stock/v3/get-historical-data?symbol=AMRN&region=US',
+                'https://yh-finance.p.rapidapi.com/stock/v3/get-historical-data?symbol=' . $symbol,
                 [
                     'headers' => [
                         'X-RapidAPI-Key: ' . $RapidAPIKey,
@@ -53,7 +53,5 @@ class RapidApi implements FetchData
                 throw new HttpException(500, 'Cannot fetch data from RapidAPI');
             }
         });
-
-        return $prices;
     }
 }

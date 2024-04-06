@@ -21,3 +21,13 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+
+    xm.export_string:
+        class: XM\HistoricalDataBundle\Service\ExportData\ExportCsvString
+
+    xm.export_csv:
+        public: true
+        class: XM\HistoricalDataBundle\Service\ExportData\ExportCsvFile
+
+ 
+    XM\HistoricalDataBundle\Service\ExportData\ExportData: '@xm.export_string'

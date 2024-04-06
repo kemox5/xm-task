@@ -14,9 +14,9 @@ use XM\HistoricalDataBundle\Service\FetchData\FetchData;
 
 class HistoricalData
 {
-    protected $data;
-    protected $csv;
-    protected $req;
+    protected array $data;
+    protected string $csv;
+    protected GetHistoricalDataRequest $req;
 
     public function __construct(
         protected FetchData $fetchData,
@@ -24,6 +24,7 @@ class HistoricalData
         protected FetchComapnies $fetchComapnies,
         protected MailerInterface $mailer,
         protected ParameterBagInterface $parameters,
+        protected LoggerInterface $logger,
     ) {
         $this->data = [];
     }
@@ -34,6 +35,7 @@ class HistoricalData
     public function get(GetHistoricalDataRequest $req)
     {
         $this->req = $req;
+        
         $this->fetch_data()->filter_dates()->export_data()->send_email();
     }
 
@@ -81,17 +83,19 @@ class HistoricalData
      */
     public function send_email()
     {
+        $company_name = $this->get_company_name();
+
         try {
             $email = (new Email())
                 ->from($this->parameters->get('FromAddress'))
                 ->to($this->req->email_address)
-                ->subject($this->get_company_name())
+                ->subject($company_name)
                 ->text('From ' . $this->req->start_date . ' To ' . $this->req->end_date)
-                ->attachFromPath($this->csv);
+                ->attach($this->csv, sha1(time()) . '.csv', 'text/csv');
 
             $this->mailer->send($email);
         } catch (TransportExceptionInterface $e) {
-            $this->logger->log('error', $e);
+            $this->logger->error($e);
         }
     }
 

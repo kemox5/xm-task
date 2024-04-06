@@ -4,10 +4,8 @@ namespace XM\HistoricalDataBundle\Service\ExportData;
 
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-class ExportCSV implements ExportData
+class ExportCsvFile implements ExportData
 {
-
-
     public function __construct(protected ParameterBagInterface $parameters)
     {
     }
@@ -17,8 +15,6 @@ class ExportCSV implements ExportData
         //unique filename
         $filename = $this->parameters->get('csv_directory') . sha1(time()) . '.csv';
 
-
-
         //write result to csv
         $fp = fopen($filename, 'wb');
 
@@ -26,10 +22,12 @@ class ExportCSV implements ExportData
         fputcsv($fp,  ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']);
 
         // set rows
-        foreach ($data as $line) {
+        foreach ($data as &$line) {
 
             //convert date to YYYY-mm-dd format
             $line['date'] = date('Y-m-d', $line['date']);
+
+            $line = array_values($line);
 
             fputcsv($fp, $line);
         }
@@ -38,4 +36,6 @@ class ExportCSV implements ExportData
 
         return $filename;
     }
+
+    
 }
