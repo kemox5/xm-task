@@ -55,7 +55,7 @@ class GetHistoricalDataRequest extends BaseRequest
     )]
     public function getEnd_date(): \DateTimeInterface
     {
-        return date_create($this->start_date);
+        return date_create($this->end_date);
     }
 
 
