@@ -1,0 +1,37 @@
+# For more information: https://laravel.com/docs/sail
+version: '3'
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: php8.2:latest
+        volumes:
+            - './code:/var/www/html'
+        networks:
+            - demo
+
+    nginx:
+        image: nginx:latest
+        ports:
+            - "80:80"
+        volumes:
+            - './code:/var/www/html'
+            - './nginx/conf.d:/etc/nginx/conf.d'
+        networks:
+            - demo
+        depends_on:
+            - app
+
+    redis:
+        image: redis:latest
+        networks:
+            - demo
+
+networks:
+    demo:
+        driver: bridge
+volumes:
+    demo-mysql:
+        driver: local
+
