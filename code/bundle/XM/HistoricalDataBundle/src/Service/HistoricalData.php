@@ -24,7 +24,6 @@ class HistoricalData
         protected FetchComapnies $fetchComapnies,
         protected MailerInterface $mailer,
         protected ParameterBagInterface $parameters,
-        protected LoggerInterface $logger
     ) {
         $this->data = [];
     }

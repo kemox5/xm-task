@@ -5,7 +5,7 @@ namespace XM\HistoricalDataBundle\Service\FetchData;
 use DateTimeImmutable;
 use Psr\Cache\CacheItemInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Validator\Constraints\DateTime;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -49,6 +49,8 @@ class RapidApi implements FetchData
                     unset($item['adjclose']);
                     return ($item);
                 }, $prices);
+            } else {
+                throw new HttpException(500, 'Cannot fetch data from RapidAPI');
             }
         });
 

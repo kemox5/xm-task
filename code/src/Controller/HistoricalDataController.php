@@ -18,13 +18,11 @@ class HistoricalDataController extends AbstractController
     #[Route('/', name: 'get_historical_data'),]
     public function getHistoricalData(GetHistoricalDataRequest $request, HistoricalData $historicaldata, LoggerInterface $logger): JsonResponse
     {
-        $logger->log('error', 'x');
-        
         try {
             $historicaldata->get($request);
             return $this->json(['success' => true]);
         } catch (Exception $e) {
-            $logger->log('error', $e);
+            $logger->error($e);
             return $this->json(['success' => false], 400);
         }
     }
