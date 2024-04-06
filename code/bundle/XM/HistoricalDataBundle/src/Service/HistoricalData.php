@@ -2,6 +2,7 @@
 
 namespace XM\HistoricalDataBundle\Service;
 
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use XM\HistoricalDataBundle\Requests\GetHistoricalDataRequest;
@@ -19,7 +20,8 @@ class HistoricalData
         protected FetchData $fetchData,
         protected ExportData $exportData,
         protected FetchComapnies $fetchComapnies,
-        protected MailerInterface $mailer
+        protected MailerInterface $mailer,
+        protected ParameterBagInterface $parameters
     ) {
         $this->data = [];
     }
@@ -59,7 +61,7 @@ class HistoricalData
     public function send_email()
     {
         $email = (new Email())
-            ->from('sample-sender@binaryboxtuts.com')
+            ->from($this->parameters->get('FromAddress'))
             ->to($this->req->email_address)
             ->subject($this->get_company_name())
             ->text('From ' . $this->req->start_date . ' To ' . $this->req->end_date)

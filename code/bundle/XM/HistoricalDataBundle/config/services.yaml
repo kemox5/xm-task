@@ -6,6 +6,7 @@
 parameters:
     csv_directory: '%kernel.project_dir%/public/uploads/csv/'
     RapidAPIKey: '%env(RapidAPIKey)%'
+    FromAddress: '%env(FromAddress)%'
     
 services:
     # default configuration for services in *this* file
