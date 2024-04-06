@@ -29,25 +29,30 @@ class HistoricalData
         $this->data = [];
     }
 
-    public function fetch(): object
+    /**
+     * Start the proccess
+     */
+    public function get(GetHistoricalDataRequest $req)
+    {
+        $this->req = $req;
+        $this->fetch_data()->filter_dates()->export_data()->send_email();
+    }
+
+
+    /**
+     * Fetch data from FetchData service 
+     */
+    public function fetch_data(): object
     {
         $this->data = $this->fetchData->fetch($this->req->company_symbol);
         return $this;
     }
 
-    public function get_company_name(): string
-    {
-        $companies = $this->fetchComapnies->get();
-        return $companies[$this->req->company_symbol];
-    }
 
-    public function export()
-    {
-        $this->csv = $this->exportData->export($this->data);
-        return $this;
-    }
-
-    public function filter_date()
+    /**
+     * Filter data between start_date and end_date
+     */
+    public function filter_dates()
     {
         $new_arr = [];
 
@@ -61,6 +66,20 @@ class HistoricalData
         return $this;
     }
 
+
+    /**
+     * Export data by ExportData service
+     */
+    public function export_data()
+    {
+        $this->csv = $this->exportData->export($this->data);
+        return $this;
+    }
+
+
+    /**
+     * Send result to email_address
+     */
     public function send_email()
     {
         try {
@@ -77,9 +96,12 @@ class HistoricalData
         }
     }
 
-    public function get(GetHistoricalDataRequest $req)
+    /**
+     * Get company_name to use it as subject for the email
+     */
+    public function get_company_name(): string
     {
-        $this->req = $req;
-        $this->fetch()->filter_date()->export()->send_email();
+        $companies = $this->fetchComapnies->get();
+        return $companies[$this->req->company_symbol];
     }
 }

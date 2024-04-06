@@ -8,21 +8,21 @@ use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use XM\HistoricalDataBundle\Requests\GetHistoricalDataRequest;
 use XM\HistoricalDataBundle\Service\HistoricalData;
 
-#[Route('/historical-data')]
+#[Route('/api/historical-data', format: 'json')]
 class HistoricalDataController extends AbstractController
 {
     #[Route('/', name: 'get_historical_data'),]
     public function getHistoricalData(GetHistoricalDataRequest $request, HistoricalData $historicaldata, LoggerInterface $logger): JsonResponse
     {
+        $logger->log('error', 'x');
+        
         try {
             $historicaldata->get($request);
             return $this->json(['success' => true]);
-        
         } catch (Exception $e) {
             $logger->log('error', $e);
             return $this->json(['success' => false], 400);

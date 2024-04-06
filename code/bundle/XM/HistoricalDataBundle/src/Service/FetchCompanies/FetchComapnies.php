@@ -4,6 +4,7 @@ namespace XM\HistoricalDataBundle\Service\FetchCompanies;
 
 use Psr\Cache\CacheItemInterface;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -20,29 +21,27 @@ class FetchComapnies
     {
         $companies = $this->cachePool->get('companies', function (CacheItemInterface $cacheItemInterface) {
 
-            $cacheItemInterface->expiresAfter(60*60*24*30);
+            $cacheItemInterface->expiresAfter(60 * 60 * 24 * 30);
 
             $response = $this->client->request(
                 'GET',
                 'https://pkgstore.datahub.io/core/nasdaq-listings/nasdaq-listed_json/data/a5bc7580d6176d60ac0b2142ca8d7df6/nasdaq-listed_json.json'
             );
 
-            $statusCode = $response->getStatusCode();
-            // $statusCode = 200
-            $contentType = $response->getHeaders()['content-type'][0];
-            // $contentType = 'application/json'
-            $content = $response->getContent();
-            // $content = '{"id":521583, "name":"symfony-docs", ...}'
-            $content = $response->toArray();
-            // $content = ['id' => 521583, 'name' => 'symfony-docs', ...]
+            if ($response->getStatusCode() == 200) {
+                $content = $response->toArray();
 
-            $data = [];
+                $data = [];
 
-            foreach($content as $item){
-                $data[$item['Symbol']] = $item['Company Name'];
+                foreach ($content as $item) {
+                    if (isset($item['Symbol']) && isset($item['Company Name']))
+                        $data[$item['Symbol']] = $item['Company Name'];
+                }
+
+                return $data;
+            } else {
+                throw new HttpException(500, 'Cannot fetch compnies');
             }
-
-            return $data;
         });
 
         return $companies;

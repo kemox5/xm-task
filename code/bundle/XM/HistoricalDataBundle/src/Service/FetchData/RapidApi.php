@@ -16,6 +16,9 @@ class RapidApi implements FetchData
     {
     }
 
+    /**
+     * Fetch data from RapidAPI and cache the result untill midnight
+     */
     public function fetch($symbol): array
     {
         $RapidAPIKey = $this->parameters->get('RapidAPIKey');
@@ -35,24 +38,18 @@ class RapidApi implements FetchData
                 ]
             );
 
+            if ($response->getStatusCode() == 200) {
 
-            $content = $response->toArray();
+                $content = $response->toArray();
 
-            if ($content) {
-
-                $prices = $content['prices'];
+                $prices = $content['prices'] ?? [];
 
                 //remove adjclose col 
-                $prices = array_map(function ($item) {
+                return array_map(function ($item) {
                     unset($item['adjclose']);
                     return ($item);
                 }, $prices);
-
-
-                return $prices;
             }
-
-            return [];
         });
 
         return $prices;

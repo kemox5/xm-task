@@ -8,8 +8,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class BaseRequest
 {
+    protected array $errors;
+
     public function __construct(protected ValidatorInterface $validator)
     {
+        $this->errors = [];
+
         $this->populate();
 
         if ($this->autoValidateRequest()) {
@@ -21,17 +25,21 @@ abstract class BaseRequest
     {
         $errors = $this->validator->validate($this);
 
-        $messages = ['message' => 'validation_failed', 'errors' => []];
-
         /** @var \Symfony\Component\Validator\ConstraintViolation  */
         foreach ($errors as $message) {
-            $messages['errors'][] = [
+            $this->errors[] = [
                 'property' => $message->getPropertyPath(),
                 'value' => $message->getInvalidValue(),
                 'message' => $message->getMessage(),
             ];
         }
 
+        $this->throwError();
+    }
+
+    public function throwError()
+    {
+        $messages = ['message' => 'validation_failed', 'errors' => $this->errors];
         if (count($messages['errors']) > 0) {
             $response = new JsonResponse($messages, 201);
             $response->send();
@@ -41,6 +49,19 @@ abstract class BaseRequest
     public function getRequest(): Request
     {
         return Request::createFromGlobals();
+    }
+
+    public function isValidDate($value,  $property)
+    {
+        if (!date_create($value)) {
+            $this->errors[] = [
+                'property' => $property,
+                'value' => $value,
+                'message' => 'This value should be a valid date',
+            ];
+            return false;
+        }
+        return true;
     }
 
     protected function populate(): void
