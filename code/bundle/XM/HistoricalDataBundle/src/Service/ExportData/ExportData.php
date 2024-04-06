@@ -4,5 +4,5 @@ namespace XM\HistoricalDataBundle\Service\ExportData;
 
 interface ExportData
 {
-    public function export(Array $data);
+    public function export(array $data): string;
 }

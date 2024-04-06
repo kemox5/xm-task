@@ -19,32 +19,19 @@ use XM\HistoricalDataBundle\Service\HistoricalData;
 class HistoricalDataController extends AbstractController
 {
     #[Route('/', name: 'get_historical_data'),]
-    public function getHistoricalData(GetHistoricalDataRequest $request, HistoricalData $historicaldata, MailerInterface $mailer): JsonResponse
+    public function getHistoricalData(GetHistoricalDataRequest $request, HistoricalData $historicaldata): JsonResponse
     {
-        $company_symbol = $request->company_symbol;
-        $email_address = $request->email_address;
-
-        $data = $historicaldata->fetch($company_symbol)->export();
-
         try {
+            $historicaldata->get($request);
 
-            /*  $email = (new Email())
-                ->from('sample-sender@binaryboxtuts.com')
-                ->to($email_address)
-                ->subject('Email Test')
-                ->text('hi');
-
-            $mailer->send($email); */
-
-
-            return $this->json(['company' => $company_symbol, 'message' => $data]);
+            return $this->json(['success' => true]);
         } catch (TransportExceptionInterface $e) {
             die($e);
-            return $this->json([], 400);
+            return $this->json(['success' => false], 400);
         } catch (Exception $e) {
             die($e);
 
-            return $this->json([], 400);
+            return $this->json(['success' => false], 400);
         }
     }
 }

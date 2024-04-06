@@ -7,27 +7,39 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 class ExportCSV implements ExportData
 {
 
-    protected $parameters;
 
-    public function __construct(ParameterBagInterface $parameters)
+    public function __construct(protected ParameterBagInterface $parameters)
     {
-        $this->parameters = $parameters;
     }
-    
-    public function export(array $data)
+
+    public function export(array $data): string
     {
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="sample.csv"');
+        //unique filename
+        $filename = $this->parameters->get('csv_directory') . sha1(time()) . '.csv';
 
 
-        $filename = sha1(time()) . '.csv';
+        //convert date to YYYY-mm-dd format
+        $data = array_map(function ($line) {
+            $line['date'] = date('Y-m-d', $line['date']);
+            return $line;
+        }, $data);
 
-        $fp = fopen($this->parameters->get('csv_directory') . $filename, 'wb');
+
+        //prepare keys and capitalize first letter
+        if (isset($data[0])) {
+            $keys = array_keys($data[0]);
+            array_unshift($data, array_map(function ($item) {
+                return ucfirst($item);
+            }, $keys));
+        }
+
+        //write result to csv
+        $fp = fopen($filename, 'wb');
         foreach ($data as $line) {
             fputcsv($fp, $line);
         }
         fclose($fp);
 
-        return 'public/csv/' . $filename;
+        return $filename;
     }
 }
