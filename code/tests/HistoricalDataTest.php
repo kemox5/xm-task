@@ -76,10 +76,10 @@ class HistoricalDataTest extends KernelTestCase
             $this->url,
             [
                 'json' => [
-                    'company_symbol' => 'AAPL',
+                    'company_symbol' => 'GOOGL',
                     'email_address' => 'test@example.com',
-                    'start_date' => '2023-01-01',
-                    'end_date' => '2023-12-31'
+                    'start_date' => '2023-08-01',
+                    'end_date' =>"2024-04-06"
                 ]
             ]
         );
@@ -92,6 +92,15 @@ class HistoricalDataTest extends KernelTestCase
         $responseArray = json_decode($responseContent, true);
         $this->assertEquals('true', $responseArray['success']);
         $this->assertFileExists($filename);
+
+       /*  $fileContent = file($filename);
+
+        if (count($fileContent) > 1) {
+            $firstRow = explode(',', $fileContent[1]);
+            $lastRow =  explode(',', $fileContent[count($fileContent) - 1]);
+            $this->assertGreaterThanOrEqual(date('Y-m-d', strtotime('-1 month')), $firstRow[0]);
+            $this->assertLessThanOrEqual(date('Y-m-d'), $lastRow[0]);
+        } */
     }
 
     public function testInvalidRequestFormat()
