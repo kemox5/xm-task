@@ -2,7 +2,9 @@
 
 namespace XM\HistoricalDataBundle\Service;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use XM\HistoricalDataBundle\Requests\GetHistoricalDataRequest;
@@ -21,7 +23,8 @@ class HistoricalData
         protected ExportData $exportData,
         protected FetchComapnies $fetchComapnies,
         protected MailerInterface $mailer,
-        protected ParameterBagInterface $parameters
+        protected ParameterBagInterface $parameters,
+        protected LoggerInterface $logger
     ) {
         $this->data = [];
     }
@@ -60,14 +63,18 @@ class HistoricalData
 
     public function send_email()
     {
-        $email = (new Email())
-            ->from($this->parameters->get('FromAddress'))
-            ->to($this->req->email_address)
-            ->subject($this->get_company_name())
-            ->text('From ' . $this->req->start_date . ' To ' . $this->req->end_date)
-            ->attachFromPath($this->csv);
+        try {
+            $email = (new Email())
+                ->from($this->parameters->get('FromAddress'))
+                ->to($this->req->email_address)
+                ->subject($this->get_company_name())
+                ->text('From ' . $this->req->start_date . ' To ' . $this->req->end_date)
+                ->attachFromPath($this->csv);
 
-        $this->mailer->send($email);
+            $this->mailer->send($email);
+        } catch (TransportExceptionInterface $e) {
+            $this->logger->log('error', $e);
+        }
     }
 
     public function get(GetHistoricalDataRequest $req)
