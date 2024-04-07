@@ -12,7 +12,6 @@ Get Stock Historical Prices for companies by their symbols
 - copy .env.example and rename it to .env
 - fill empty configration in .env file
 - run docker-composer up -d
-- run php bin/console messenger:consume -vv
 ```
 
 ## Usage

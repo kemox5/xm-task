@@ -5,33 +5,49 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        image: php8.2:latest
+        image: xm-task:latest
+        container_name: app
         volumes:
-            - './:/var/www/html'
+            - './:/var/www'
         networks:
-            - demo
+            - internal
+
+    worker:
+        image: xm-task:latest
+        volumes:
+            - './:/var/www'
+        container_name: worker
+        networks:
+            - internal
+        command: php bin/console messenger:consume -vv
+        depends_on:
+            - app
+            - redis
 
     nginx:
         image: nginx:latest
         ports:
             - "80:80"
         volumes:
-            - './:/var/www/html'
+            - './:/var/www'
             - './nginx/conf.d:/etc/nginx/conf.d'
         networks:
-            - demo
+            - internal
         depends_on:
             - app
 
     redis:
         image: redis:latest
+        volumes:
+            - redis-volume:/data
         networks:
-            - demo
+            - internal
 
 networks:
-    demo:
+    internal:
         driver: bridge
+
 volumes:
-    demo-mysql:
+    redis-volume:
         driver: local
 
