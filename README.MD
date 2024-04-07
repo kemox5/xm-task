@@ -7,30 +7,31 @@ Get Stock Historical Prices for companies by their symbols
 ## Installation
 
 ```bash
-- clone 
+- clone project
+- cd project_path
+- copy .env.example and rename it to .env
+- fill empty configration in .env file
+- run docker-composer up -d
 ```
 
 ## Usage
 
-```python
-import foobar
+- Send POST request to http://localhost/api/historical-data/
 
-# returns 'words'
-foobar.pluralize('word')
-
-# returns 'geese'
-foobar.pluralize('goose')
-
-# returns 'phenomenon'
-foobar.singularize('phenomena')
+```json
+{
+    "company_symbol": "AAIT",
+    "email_address": "karimx@gmail.com",
+    "start_date":"2023-08-01",
+    "end_date": "2024-04-06"
+}
 ```
 
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first
-to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
+## Testing
+```bash
+    - run php bin/phpunit 
+    - run php bin/phpunit bundle/XM/HistoricalDataBundle/tests
+```
 
 ## License
 
