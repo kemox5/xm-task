@@ -7,8 +7,11 @@ namespace App\Controller;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use XM\HistoricalDataBundle\Events\GetHistroicalDataEvent;
 use XM\HistoricalDataBundle\Requests\GetHistoricalDataRequest;
 use XM\HistoricalDataBundle\Service\HistoricalData;
 
@@ -19,6 +22,7 @@ class HistoricalDataController extends AbstractController
     public function getHistoricalData(GetHistoricalDataRequest $request, HistoricalData $historicaldata, LoggerInterface $logger): JsonResponse
     {
         try {
+
             $historicaldata->get($request);
             return $this->json(['success' => true]);
         } catch (Exception $e) {
