@@ -24,23 +24,18 @@ class HistoricalDataTest extends KernelTestCase
 
     public function testValid(): void
     {
-        $FetchComapnies = $this->createMock(FetchComapnies::class);
-        $ValidatorInterface = $this->createMock(ValidatorInterface::class);
+        $start_date = '2022-01-01';
+        $end_date = '2022-01-01';
+        $company_symbol = 'GOOGL';
+        $email_address = 'karim@app.com';
 
-        $req = new GetHistoricalDataRequest($ValidatorInterface, $FetchComapnies);
-
-        $req->start_date = '2022-01-01';
-        $req->end_date = '2022-01-01';
-        $req->company_symbol = 'GOOGL';
-        $req->email_address = 'karim@app.com';
-
-        $this->historicalData->get($req);
+        $this->historicalData->get($company_symbol, $email_address, $start_date, $end_date);
 
         $mail = $this->getMailerMessage();
         $this->assertQueuedEmailCount(1);
         $this->assertEmailSubjectContains($mail, 'Google Inc.');
         $this->assertEmailAttachmentCount($mail, 1);
         $this->assertEmailAddressContains($mail, 'to', 'karim@app.com');
-        $this->assertEmailTextBodyContains($mail, 'From ' . $req->start_date . ' To ' . $req->end_date);
+        $this->assertEmailTextBodyContains($mail, 'From ' . $start_date . ' To ' . $end_date);
     }
 }

@@ -18,6 +18,8 @@ class HistoricalData
     protected string $csv;
     protected GetHistoricalDataRequest $req;
 
+    public string $company_symbol,  $email_address,  $start_date,  $end_date;
+
     public function __construct(
         protected FetchData $fetchData,
         protected ExportData $exportData,
@@ -32,10 +34,17 @@ class HistoricalData
     /**
      * Start the proccess
      */
-    public function get(GetHistoricalDataRequest $req)
-    {
-        $this->req = $req;
-        
+    public function get(
+        string $company_symbol,
+        string $email_address,
+        string $start_date,
+        string $end_date
+    ) {
+        $this->company_symbol = $company_symbol;
+        $this->email_address = $email_address;
+        $this->start_date = $start_date;
+        $this->end_date = $end_date;
+
         $this->fetch_data()->filter_dates()->export_data()->send_email();
     }
 
@@ -45,7 +54,7 @@ class HistoricalData
      */
     public function fetch_data(): object
     {
-        $this->data = $this->fetchData->fetch($this->req->company_symbol);
+        $this->data = $this->fetchData->fetch($this->company_symbol);
         return $this;
     }
 
@@ -58,7 +67,7 @@ class HistoricalData
         $new_arr = [];
 
         foreach ($this->data as $item) {
-            if ($item['date'] >= strtotime($this->req->start_date . ' 00:00:00') && $item['date'] <= strtotime($this->req->end_date . ' 23:59:59')) {
+            if ($item['date'] >= strtotime($this->start_date . ' 00:00:00') && $item['date'] <= strtotime($this->end_date . ' 23:59:59')) {
                 $new_arr[] = $item;
             }
         }
@@ -88,9 +97,9 @@ class HistoricalData
         try {
             $email = (new Email())
                 ->from($this->parameters->get('FromAddress'))
-                ->to($this->req->email_address)
+                ->to($this->email_address)
                 ->subject($company_name)
-                ->text('From ' . $this->req->start_date . ' To ' . $this->req->end_date)
+                ->text('From ' . $this->start_date . ' To ' . $this->end_date)
                 ->attach($this->csv, sha1(time()) . '.csv', 'text/csv');
 
             $this->mailer->send($email);
@@ -105,6 +114,6 @@ class HistoricalData
     public function get_company_name(): string
     {
         $companies = $this->fetchComapnies->get();
-        return $companies[$this->req->company_symbol];
+        return $companies[$this->company_symbol];
     }
 }

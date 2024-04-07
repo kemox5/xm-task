@@ -11,7 +11,7 @@ framework:
 
         routing:
             # Route your messages to the transports
-            # 'App\Message\YourMessage': async
+            'XM\HistoricalDataBundle\Events\RequestEvent': async
             'Symfony\Component\Mailer\Messenger\SendEmailMessage': async
 
 # when@test:
