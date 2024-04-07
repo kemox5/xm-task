@@ -3,10 +3,6 @@
 namespace XM\HistoricalDataBundle\Tests;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Contracts\Cache\CacheInterface;
-use XM\HistoricalDataBundle\Service\ExportData\ExportCsvFile;
-use XM\HistoricalDataBundle\Service\FetchCompanies\FetchComapnies;
-use XM\HistoricalDataBundle\Service\FetchData\FetchData;
 
 class ExportCsvFileTest extends KernelTestCase
 {

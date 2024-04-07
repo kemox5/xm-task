@@ -8,6 +8,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use XM\HistoricalDataBundle\Dto\HistoricalDataDto;
 use XM\HistoricalDataBundle\Requests\GetHistoricalDataRequest;
 use XM\HistoricalDataBundle\Service\ExportData\ExportData;
 use XM\HistoricalDataBundle\Service\FetchCompanies\FetchComapnies;
@@ -17,9 +18,7 @@ class HistoricalData
 {
     protected array $data;
     protected string $csv;
-    protected GetHistoricalDataRequest $req;
-
-    public string $company_symbol,  $email_address,  $start_date,  $end_date;
+    private $historicalDataDto;
 
     public function __construct(
         protected FetchData $fetchData,
@@ -36,16 +35,10 @@ class HistoricalData
      * Start the proccess
      */
     public function get(
-        string $company_symbol,
-        string $email_address,
-        string $start_date,
-        string $end_date
+         HistoricalDataDto $historicalDataDto
     ) {
-        $this->company_symbol = $company_symbol;
-        $this->email_address = $email_address;
-        $this->start_date = $start_date;
-        $this->end_date = $end_date;
-        
+        $this->historicalDataDto = $historicalDataDto;
+
         try {
             $this->fetch_data()->filter_dates()->export_data()->send_email();
         } catch (Exception $e) {
@@ -59,7 +52,7 @@ class HistoricalData
      */
     public function fetch_data(): object
     {
-        $this->data = $this->fetchData->fetch($this->company_symbol);
+        $this->data = $this->fetchData->fetch($this->historicalDataDto->company_symbol);
         return $this;
     }
 
@@ -72,7 +65,7 @@ class HistoricalData
         $new_arr = [];
 
         foreach ($this->data as $item) {
-            if ($item['date'] >= strtotime($this->start_date . ' 00:00:00') && $item['date'] <= strtotime($this->end_date . ' 23:59:59')) {
+            if ($item['date'] >= strtotime($this->historicalDataDto->start_date . ' 00:00:00') && $item['date'] <= strtotime($this->historicalDataDto->end_date . ' 23:59:59')) {
                 $new_arr[] = $item;
             }
         }
@@ -102,9 +95,9 @@ class HistoricalData
         try {
             $email = (new Email())
                 ->from($this->parameters->get('FromAddress'))
-                ->to($this->email_address)
+                ->to($this->historicalDataDto->email_address)
                 ->subject($company_name)
-                ->text('From ' . $this->start_date . ' To ' . $this->end_date)
+                ->text('From ' . $this->historicalDataDto->start_date . ' To ' . $this->historicalDataDto->end_date)
                 ->attach($this->csv, sha1(time()) . '.csv', 'text/csv');
 
             $this->mailer->send($email);
@@ -119,6 +112,6 @@ class HistoricalData
     public function get_company_name(): string
     {
         $companies = $this->fetchComapnies->get();
-        return $companies[$this->company_symbol];
+        return $companies[$this->historicalDataDto->company_symbol];
     }
 }

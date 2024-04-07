@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use XM\HistoricalDataBundle\Dto\HistoricalDataDto;
 use XM\HistoricalDataBundle\Events\RequestEvent;
 use XM\HistoricalDataBundle\Requests\GetHistoricalDataRequest;
 
@@ -21,8 +22,8 @@ class HistoricalDataController extends AbstractController
     {
         try {
 
-            $cutomEvent = new RequestEvent($request->company_symbol, $request->email_address, $request->start_date, $request->end_date);
-            $bus->dispatch( $cutomEvent);
+            $cutomEvent = new RequestEvent(new HistoricalDataDto($request->company_symbol, $request->email_address, $request->start_date, $request->end_date));
+            $bus->dispatch($cutomEvent);
 
             // $historicaldata->get($request);
             return $this->json(['success' => true]);

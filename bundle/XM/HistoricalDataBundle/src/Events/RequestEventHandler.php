@@ -15,6 +15,6 @@ class RequestEventHandler
 
     public function __invoke(RequestEvent $requestEvent)
     {
-        $this->historicalData->get($requestEvent->company_symbol, $requestEvent->email_address, $requestEvent->start_date, $requestEvent->end_date);
+        $this->historicalData->get($requestEvent->historicalDataDto);
     }
 }

@@ -3,22 +3,20 @@
 namespace XM\HistoricalDataBundle\Tests;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Mailer\EventListener\MessengerTransportListener;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use XM\HistoricalDataBundle\Requests\GetHistoricalDataRequest;
-use XM\HistoricalDataBundle\Service\FetchCompanies\FetchComapnies;
+use XM\HistoricalDataBundle\Dto\HistoricalDataDto;
 use XM\HistoricalDataBundle\Service\HistoricalData;
 
 class HistoricalDataTest extends KernelTestCase
 {
-    private $historicalData;
+    private $historicalData, $container;
 
     public function setUp(): void
     {
         self::bootKernel();
-
         $container = static::getContainer();
-
+        $this->container = $container;
         $this->historicalData = $container->get(HistoricalData::class);
     }
 
@@ -29,7 +27,8 @@ class HistoricalDataTest extends KernelTestCase
         $company_symbol = 'GOOGL';
         $email_address = 'karim@app.com';
 
-        $this->historicalData->get($company_symbol, $email_address, $start_date, $end_date);
+        $historicalDataDto = new HistoricalDataDto($company_symbol, $email_address, $start_date, $end_date);
+        $this->historicalData->get($historicalDataDto);
 
         $mail = $this->getMailerMessage();
         $this->assertQueuedEmailCount(1);

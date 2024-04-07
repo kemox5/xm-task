@@ -2,7 +2,7 @@
 
 namespace XM\HistoricalDataBundle\Requests;
 
-use phpDocumentor\Reflection\Types\Boolean;
+use App\Requests\BaseRequest;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;

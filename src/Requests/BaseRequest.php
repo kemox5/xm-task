@@ -1,6 +1,6 @@
 <?php
 
-namespace XM\HistoricalDataBundle\Requests;
+namespace App\Requests;
 
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
