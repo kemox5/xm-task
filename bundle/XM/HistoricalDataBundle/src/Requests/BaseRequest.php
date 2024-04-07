@@ -40,10 +40,11 @@ abstract class BaseRequest
 
     public function throwError()
     {
-        $messages = ['message' => 'validation_failed', 'errors' => $this->errors];
+        $messages = ['success' => false, 'message' => 'validation_failed', 'errors' => $this->errors];
         if (count($messages['errors']) > 0) {
             $response = new JsonResponse($messages, 200);
             $response->send();
+            exit;
         }
     }
 
@@ -67,7 +68,7 @@ abstract class BaseRequest
 
     protected function populate(): void
     {
-        if ($this->getRequest()->getContent() !=''){
+        if ($this->getRequest()->getContent() != '') {
             foreach ($this->getRequest()->toArray() as $property => $value) {
                 if (property_exists($this, $property)) {
                     $this->{$property} = $value;

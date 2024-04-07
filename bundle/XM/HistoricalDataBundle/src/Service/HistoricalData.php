@@ -2,6 +2,7 @@
 
 namespace XM\HistoricalDataBundle\Service;
 
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
@@ -44,8 +45,12 @@ class HistoricalData
         $this->email_address = $email_address;
         $this->start_date = $start_date;
         $this->end_date = $end_date;
-
-        $this->fetch_data()->filter_dates()->export_data()->send_email();
+        
+        try {
+            $this->fetch_data()->filter_dates()->export_data()->send_email();
+        } catch (Exception $e) {
+            $this->logger->error($e);
+        }
     }
 
 

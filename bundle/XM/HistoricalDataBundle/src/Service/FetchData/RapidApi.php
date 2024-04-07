@@ -4,6 +4,7 @@ namespace XM\HistoricalDataBundle\Service\FetchData;
 
 use DateTimeImmutable;
 use Psr\Cache\CacheItemInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -12,7 +13,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class RapidApi implements FetchData
 {
 
-    public function __construct(protected HttpClientInterface $client, protected CacheInterface $cachePool, protected ParameterBagInterface $parameters)
+    public function __construct(protected HttpClientInterface $client, protected CacheInterface $cachePool, protected ParameterBagInterface $parameters, protected LoggerInterface $logger)
     {
     }
 
@@ -23,7 +24,11 @@ class RapidApi implements FetchData
     {
         $RapidAPIKey = $this->parameters->get('RapidAPIKey');
 
-        return $this->cachePool->get($symbol, function (CacheItemInterface $cacheItemInterface) use ($RapidAPIKey, $symbol) {
+        $logger = $this->logger;
+
+        return $this->cachePool->get($symbol, function (CacheItemInterface $cacheItemInterface) use ($RapidAPIKey, $symbol, $logger) {
+
+            $logger->debug('cache miss');
 
             $cacheItemInterface->expiresAt(new DateTimeImmutable(date('Y-m-d') . ' 23:59:59'));
 
