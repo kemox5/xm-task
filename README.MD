@@ -2,7 +2,11 @@
 
 # XM PHP Exercise - v23.0.0
 
-Get Stock Historical Prices for companies by their symbols
+Get Stock Historical Prices for companies by their symbols.
+
+## Requirments
+https://github.com/kemox5/xm-task/blob/main/XM%20PHP%20Exercise-1.pdf
+
 
 ## Installation
 
